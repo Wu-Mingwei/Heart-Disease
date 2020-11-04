@@ -1,0 +1,26 @@
+---
+title: "Heart Disease Visualization"
+author: "Mingwei Wu"
+---
+
+
+##Data Description
+###age: patients' age
+###sex: 1 is male, 2 is female
+###cp: chest pain type 4 level
+###trestbps:  resting blood presure
+###chol: serum cholestoral in mg/dl
+###fbs: fasting blood sugar >120 mg/dl is value 1
+###restecg: resting electrocardiographic reults (values 0,1,2)
+###thalach: maximum heart rate achieved
+###exang: exercise incuced angina
+###oldpeak: ST depression induced by exercise relative to rest
+###slope: the slope of the peak exercise ST segment
+###ca: number of major vessels (0-3) colored by flourosopy
+###thal: 3 is normal; 6 fixed defect; 7 reversable defect
+###target: 1 has heart disease, 0 not
+```{r}
+data<-read.csv("heart.csv",header = TRUE)
+head(data)
+```
+
