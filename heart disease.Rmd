@@ -3,6 +3,8 @@ title: "Heart Disease Visualization"
 author: "Mingwei Wu"
 ---
 
+#Background
+## The database contains 76 attributes, but all published experiments refer to using a subset of 14 of them, at particular, the Cleveland database is 
 
 ##Data Description
 ###age: patients' age
@@ -23,4 +25,59 @@ author: "Mingwei Wu"
 data<-read.csv("heart.csv",header = TRUE)
 head(data)
 ```
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+heart<-data%>%
+  mutate(gender= ifelse(sex==1,"Male","Female"),
+         chest_pain_level= ifelse(cp==0,"none",
+                                  ifelse(cp==1,"mild",
+                                         ifelse(cp==2,"moderate","severe"))),
+         fblood_sugar=ifelse(fbs==1,"yes","no"),
+         rest_electrocardigoraphic= ifelse(restecg==0,"normal",
+                                           ifelse(restecg==1,"abnormalily","definite")),
+         exercise=ifelse(exang==1,"yes","no"),
+        heart_condition=ifelse(target==1,"yes","no")) # rebuild the column to the data frame
+```
+
+```{r}
+heart%>%
+  group_by(gender)%>%
+  summarise(gender_rate=mean(target)) # calculate the heart disease  rate of the gender
+```
+```{r}
+heart%>%
+  ggplot(aes(heart_condition,fill=gender))+geom_bar()+ggtitle("gender vs heart condition") #data visualization to display the relationship
+```
+
+```{r}
+heart%>%
+  group_by(exercise)%>%
+  summarise(exercise_rate=mean(target))
+```
+
+
+```{r}
+heart%>%
+  ggplot(aes(heart_condition,fill=exercise))+geom_bar()+ggtitle("exericse vs heart condition")
+```
+```{r}
+heart%>%
+  group_by(age)%>%
+  count()%>%
+  filter(n>5)%>%
+  ggplot(aes(age,n))+geom_col()+ggtitle("age analysis") # checking a proportion of heart condition with age
+```
+```{r}
+
+```
+
+
+
+
+
+
+
 
