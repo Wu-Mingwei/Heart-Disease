@@ -1,6 +1,9 @@
 ---
 title: "Heart Disease Visualization"
 author: "Mingwei Wu"
+output:
+  pdf_document: default
+  word_document: default
 ---
 
 #Background
@@ -25,6 +28,10 @@ author: "Mingwei Wu"
 data<-read.csv("heart.csv",header = TRUE)
 head(data)
 ```
+```{r}
+pairs(data) #paris data to see the relationship in numeric values
+```
+
 
 ```{r}
 library(ggplot2)
@@ -32,10 +39,10 @@ library(tidyverse)
 library(dplyr)
 heart<-data%>%
   mutate(gender= ifelse(sex==1,"Male","Female"),
-         chest_pain_level= ifelse(cp==0,"none",
+         chest_pain_level= ifelse(cp==0,"normal",
                                   ifelse(cp==1,"mild",
                                          ifelse(cp==2,"moderate","severe"))),
-         fblood_sugar=ifelse(fbs==1,"yes","no"),
+         fblood_sugar=ifelse(fbs==1,">120","<=120"),
          rest_electrocardigoraphic= ifelse(restecg==0,"normal",
                                            ifelse(restecg==1,"abnormalily","definite")),
          exercise=ifelse(exang==1,"yes","no"),
@@ -70,9 +77,23 @@ heart%>%
   filter(n>5)%>%
   ggplot(aes(age,n))+geom_col()+ggtitle("age analysis") # checking a proportion of heart condition with age
 ```
-```{r}
 
+```{r}
+heart%>%
+  ggplot(aes(heart_condition,fill=fblood_sugar))+geom_bar()+ggtitle("blood sugar > 120 vs heart condition")
 ```
+```{r}
+heart%>%
+  ggplot(aes(age,chol,color=heart_condition))+geom_point()+geom_smooth(method="lm")+ggtitle("relationship age and chol vs heart_condition in gender")+ facet_wrap(~gender) #plot the point and line for data visualization
+```
+```{r}
+heart%>%
+  ggplot(aes(gender,trestbps))+geom_boxplot()+xlab("Sex")+ylab("resting blood pressure")+facet_grid(~chest_pain_level)
+```
+
+
+
+
 
 
 
