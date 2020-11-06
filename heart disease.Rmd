@@ -1,9 +1,7 @@
 ---
 title: "Heart Disease Visualization"
 author: "Mingwei Wu"
-output:
-  pdf_document: default
-  word_document: default
+output: pdf_document
 ---
 
 #Background
@@ -84,7 +82,7 @@ heart%>%
 ```
 ```{r}
 heart%>%
-  ggplot(aes(age,chol,color=heart_condition))+geom_point()+geom_smooth(method="lm")+ggtitle("relationship age and chol vs heart_condition in gender")+ facet_wrap(~gender) #plot the point and line for data visualization
+  ggplot(aes(x=age,y=chol,color=heart_condition))+geom_point()+geom_smooth(method="lm")+ggtitle("relationship age and chol vs heart_condition in gender")+ facet_wrap(~gender) #plot the point and line for data visualization
 ```
 ```{r}
 heart%>%
