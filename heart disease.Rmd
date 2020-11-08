@@ -4,33 +4,35 @@ author: "Mingwei Wu"
 output: pdf_document
 ---
 
-#Background
-## The database contains 76 attributes, but all published experiments refer to using a subset of 14 of them, at particular, the Cleveland database is 
+# Background
+## The database contains 76 attributes, but all published experiments refer to using a subset of 14 of them, at particular, the Cleveland database is the only one that has been used by ML researchers to this data.
+## Data Description
+### age: patients' age
+### sex: 1 is male, 2 is female
+### cp: chest pain type 4 level
+### trestbps:  resting blood presure
+### chol: serum cholestoral in mg/dl
+### fbs: fasting blood sugar >120 mg/dl is value 1
+### restecg: resting electrocardiographic reults (values 0,1,2)
+### thalach: maximum heart rate achieved
+### exang: exercise incuced angina
+### oldpeak: ST depression induced by exercise relative to rest
+### slope: the slope of the peak exercise ST segment
+### ca: number of major vessels (0-3) colored by flourosopy
+### thal: 3 is normal; 6 fixed defect; 7 reversable defect
+### target: 1 has heart disease, 0 not
 
-##Data Description
-###age: patients' age
-###sex: 1 is male, 2 is female
-###cp: chest pain type 4 level
-###trestbps:  resting blood presure
-###chol: serum cholestoral in mg/dl
-###fbs: fasting blood sugar >120 mg/dl is value 1
-###restecg: resting electrocardiographic reults (values 0,1,2)
-###thalach: maximum heart rate achieved
-###exang: exercise incuced angina
-###oldpeak: ST depression induced by exercise relative to rest
-###slope: the slope of the peak exercise ST segment
-###ca: number of major vessels (0-3) colored by flourosopy
-###thal: 3 is normal; 6 fixed defect; 7 reversable defect
-###target: 1 has heart disease, 0 not
+## Import data
 ```{r}
 data<-read.csv("heart.csv",header = TRUE)
 head(data)
 ```
+### First step, we compare the relationship on every column. Double check the dependent value.
 ```{r}
-pairs(data) #paris data to see the relationship in numeric values
+pairs(data) #pairs data to see the relationship in numeric values
 ```
 
-
+### Edit the column with categories. Change the int value to character values.
 ```{r}
 library(ggplot2)
 library(tidyverse)
@@ -47,54 +49,116 @@ heart<-data%>%
         heart_condition=ifelse(target==1,"yes","no")) # rebuild the column to the data frame
 ```
 
+## Geder Analysis
+### Calculate the rate of heart disease in th gender. The attached result below, the rate of Female in database has 75% who had heart disease, and the Male rate had approximate 45%
 ```{r}
 heart%>%
   group_by(gender)%>%
   summarise(gender_rate=mean(target)) # calculate the heart disease  rate of the gender
 ```
+## Question: why female has higher proportion in heart disease.
+### Count the quantity of gender. In the dataframe, the male quantity is domain, almost double quantity than female.
 ```{r}
-heart%>%
-  ggplot(aes(heart_condition,fill=gender))+geom_bar()+ggtitle("gender vs heart condition") #data visualization to display the relationship
+a<-table(heart$gender)
+par(mfrow=c(1,2))
+barplot(a,
+        col=rainbow(2),
+        legend=rownames(a),
+        xlab="Gender",
+        ylab="Count",
+        main="Barplot of Gender")
+pct<-round(a/sum(a)*100)
+lbs<-paste(c("Female","Male"), "",pct,"%",sep="")
+pie(a,labels=lbs, main="Percentage of Gender") #data visualization to compare quantity of gender
+```
+### Barplot displays the disease quantity of gender that are almost same. on the contract, the Male count higher than female.
+```{r}
+b<-table(heart$gender,heart$heart_condition)
+barplot(b,
+        col = c("red","blue"),
+        legend=rownames(b),
+        beside=TRUE,
+        xlab="sick",
+        ylab="count",
+        main="side by side barplot") # data visualization to compare count with disease.
 ```
 
+## Exercise Analysis
+### The rate of exercise with disease is 23%, and the rate of no_exercise with disease approximate 70%
 ```{r}
 heart%>%
   group_by(exercise)%>%
   summarise(exercise_rate=mean(target))
 ```
-
-
+### Only 33% in the dataframe who do exercise everyday.
 ```{r}
-heart%>%
-  ggplot(aes(heart_condition,fill=exercise))+geom_bar()+ggtitle("exericse vs heart condition")
+a1<-table(heart$exercise)
+par(mfrow=c(1,2))
+barplot(a1,
+        col=rainbow(2),
+        legend=rownames(a1),
+        xlab="exercise",
+        ylab="Count",
+        main="Barplot of exercise")
+pct<-round(a1/sum(a1)*100)
+lbs<-paste(c("no","yes"), "",pct,"%",sep="")
+pie(a1,labels=lbs, main="Percentage of exericise") #data visualization to compare quantity of gender
+```
+### The proportion of people with no disease who do not exercise are almost same, but the proportion of disease, no-exercise is extreme higher than do-exercise.
+```{r}
+b1<-table(heart$exercise,heart$heart_condition)
+barplot(b1,
+        col = c("red","blue"),
+        legend=rownames(b1),
+        beside=TRUE,
+        xlab="disease",
+        ylab="count",
+        main="side by side barplot") # data visualization to compare count with disease.
+```
+## Age Analysis
+### the age histogram shows the normal distribution, and estimate the high proportion of disease of age range 50-60.
+```{r}
+par(mfrow=c(1,2))
+hist(heart$age,labels=TRUE,main="Histogram of Age",xlab = "age",ylab = "frequency")
+boxplot(heart$age,horizontal = TRUE,col="red",main="boxplot of age")
 ```
 ```{r}
+qqnorm(heart$age,frame=FALSE)
+qqline(heart$age,col="steelblue",lwd=2)
+```
+
+## Fasting Blood Sugar Analysis
+### The fasting blood sugar either less than 120 or greater than 120, it is not significat effect to the disease.
+```{r}
 heart%>%
-  group_by(age)%>%
-  count()%>%
-  filter(n>5)%>%
-  ggplot(aes(age,n))+geom_col()+ggtitle("age analysis") # checking a proportion of heart condition with age
+  group_by(fblood_sugar)%>%
+  summarise(fblood_sugar_rate=mean(target))
 ```
 
 ```{r}
 heart%>%
   ggplot(aes(heart_condition,fill=fblood_sugar))+geom_bar()+ggtitle("blood sugar > 120 vs heart condition")
 ```
-
+## Cholestoral Analysis
+### Plot the dependent value of chol and age to disease. For the Female, age and chol with disease display increased trend line, but non-disease is decreased. However, for the male, either disease or not, both trends increased line.
 ```{r}
 heart%>%
   ggplot(aes(x=age,y=chol,color=heart_condition))+geom_point()+geom_smooth(method="lm")+ggtitle("relationship age and chol vs heart_condition in gender")+ facet_wrap(~gender) #plot the point and line for data visualization
 ```
+
+## Resting electrocardiographic Analysis
 ```{r}
 heart%>%
   ggplot(aes(gender,trestbps))+geom_boxplot()+xlab("Sex")+ylab("resting blood pressure")+facet_grid(~chest_pain_level)
 ```
+## Maximum Heart Rate Achieved Analysis
+### No matter with gender, if people have disease, the maximum heart rate achieved is higher than non-disease, also decresed with age. the non-disease heart rate achieved is relatively stable.
 ```{r}
 heart%>%
   ggplot(aes(age,thalach,color=heart_condition))+geom_point()+geom_smooth(se=FALSE)+facet_grid(~gender)+ggtitle("maxium heart rate vs gender and target")
 ```
 
-##Principle Component Analysis
+## Principle Component Analysis
 ```{r}
 pca<-prcomp(heart[,4:10],scale=TRUE)
 pca
@@ -102,7 +166,7 @@ pca
 ```{r}
 library(factoextra)
 screeplot(pca)
-fviz_screeplot(pca) #plot the tendency of pricinple component analysis
+fviz_screeplot(pca) #plot the tendency of principle component analysis
 ```
 ```{r}
 pca$sdev^2
@@ -112,7 +176,8 @@ pca$rotation
 fviz_pca(pca) #data visualization for pca
 ```
 
-## Training set and Test set
+## Statistics Analysis
+### Randomly split the data into 70% train_set and 30% test_set for logistic regression.
 ```{r}
 library(caTools)
 set.seed(927)
@@ -126,15 +191,19 @@ logistic<-glm(target~.,train_set,
               family=binomial())
 summary(logistic)
 ```
+## Remove insignificant factors
+### After removing the insignificant factors, the AIC value is going down.
 ```{r}
 logistic1<-glm(target~sex+cp+thalach+oldpeak+ca+thal,
                train_set,
                family=binomial())
 summary(logistic1)
 ```
+### coefficients build up formular
 ```{r}
 logistic1$coefficients
 ```
+### prediction on test_set
 ```{r}
 pred<-predict(logistic1,test_set,type="response")
 pred_new<-as.data.frame(pred)
@@ -144,15 +213,9 @@ categorise<-function(x){
 pred_new<-apply(pred_new,2,categorise)
 head(pred_new,10)
 ```
-
+## Model Evaluation
+### Model has 85.7% accuracy in predecting future data with logistic regression model.
 ```{r}
 library(caret)
 confusionMatrix(as.factor(test_set$target),as.factor(pred_new))
 ```
-```{r}
-result<-cbind(test_set,pred_new)
-head(result,10)
-```
-
-
-
